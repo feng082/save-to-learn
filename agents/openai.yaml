@@ -1,0 +1,4 @@
+interface:
+  display_name: "Save to Learn"
+  short_description: "收录、分析、索引并复用图片、文章、视频和本地文件等学习素材"
+  default_prompt: "Use $save-to-learn to收录、分析并整理这个学习素材。"
