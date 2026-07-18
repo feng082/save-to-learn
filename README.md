@@ -1,5 +1,23 @@
 # save-to-learn
 
+一个长期使用的学习素材库与 Codex skill，用于把网上或本地发现的好内容整理成可追溯、可分析、可检索、可复用的学习资产。
+
+## 在线展示
+
+素材库页面会展示已收录素材、标签、推荐程度和分析报告，并支持搜索与分类筛选：
+
+**[打开学习素材库](https://feng082.github.io/save-to-learn/)**
+
+> 当前仓库属于 `feng082` 账号，因此 GitHub Pages 的项目地址是 `feng082.github.io/save-to-learn/`。`save-to-learn.github.io` 这种根域名需要名为 `save-to-learn` 的 GitHub 账号或组织才能使用。
+
+## 这个项目包含什么
+
+- `index.html`：可点击的学习素材库展示页
+- `reports/`：公开的素材研读与复盘报告
+- `SKILL.md`：Codex 的 `save-to-learn` skill
+- `agents/`：skill 的代理配置
+- `.github/workflows/pages.yml`：自动部署 GitHub Pages
+
 一个用于长期管理学习素材的 Codex skill。
 
 它可以把网页、本地文件、图片、文章、PDF、视频、音频、GitHub 项目和软件工具，整理成可追溯、可分析、可检索、可复用的学习资产。
