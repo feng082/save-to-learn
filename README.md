@@ -36,12 +36,15 @@
 
 ```text
 /save-to-learn
+/save-to-learn save
 /save-to-learn inbox
 /save-to-learn search <关键词>
 /save-to-learn style <STYLE编号>
 /save-to-learn find-style <关键词>
 /save-to-learn index
 ```
+
+说 `save` 时，除了本地收录，还会同步更新 HTML 素材页并提交、推送到 GitHub；如果只想保存在本地，请明确说“只保存本地”。
 
 也支持自然语言，例如：
 
