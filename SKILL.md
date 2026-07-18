@@ -1,6 +1,6 @@
 ---
 name: save-to-learn
-description: "收录、分析、索引并复用学习素材，包括网页链接、本地文件、图片、信息图、文章、PDF、视频、音频、GitHub 项目和软件工具。Use when the user says 收录、分析并收录、处理 inbox、检索素材、寻找图片风格、参考 STYLE 或维护学习素材库。"
+description: "收录、分析、索引并复用学习素材，包括网页链接、本地文件、图片、信息图、文章、PDF、视频、音频、GitHub 项目和软件工具；用户说 save 时同步更新本地 HTML 素材页并提交到 GitHub；网页普通读取失败时使用 Firecrawl 进行第二次抓取。Use when the user says save、收录、分析并收录、处理 inbox、检索素材、寻找图片风格、参考 STYLE 或维护学习素材库。"
 ---
 
 # Save to Learn
@@ -14,6 +14,7 @@ description: "收录、分析、索引并复用学习素材，包括网页链接
 支持以下显式命令，也支持自然语言触发：
 
 - `/save-to-learn`：自动判断素材类型并完成收录、分析、报告和索引。
+- `save` 或 `/save-to-learn save`：完成本地收录后，同步更新 HTML 展示页，并提交、推送到 GitHub。
 - `/save-to-learn inbox`：处理 `inbox/` 中尚未处理的素材。
 - `/save-to-learn search <关键词>`：按标题、类型、标签、STYLE 或风格检索。
 - `/save-to-learn style <STYLE编号>`：读取指定 STYLE 的风格总结和相关报告，给出复用方案。
@@ -47,6 +48,49 @@ description: "收录、分析、索引并复用学习素材，包括网页链接
 6. 将记录放入 `index.md` 表格顶部，并确认报告链接和原始入口有效。
 7. 处理 `inbox/` 时，只有确认已完成处理的临时文件才清理。
 8. 汇报新增内容、报告、STYLE、重复项和无法访问/分析的内容。
+9. 当用户明确说 `save` 时，完成“本地收录 → HTML 更新 → GitHub 提交推送”全流程；仅说“分析”“看看”或“本地保存”时，不自动发布到 GitHub。
+
+## save 的 HTML 与 GitHub 同步流程
+
+本学习素材库已配置公开展示页。用户说 `save` 时，按以下顺序执行，不需要再次询问是否同步：
+
+1. 先完成本地 `sources/`、`reports/`、`index.md` 的去重、分析和收录。
+2. 更新本地素材库根目录的 `index.html`：在 `materials` 数组中新增或修正对应记录，确保报告路径、标题、类型、来源、标签和推荐程度一致。
+3. 同步公开站点工作副本 `E:\资料库\05_图片视频\自媒体\学习素材库\github-site`：更新其中的 `index.html` 和对应公开报告；本地绝对路径、`.lnk` 快捷方式和大型本地原文件不得上传，改为“本地素材未公开”或只保留原始网络链接。
+4. 校验公开页面没有失效的 `file:///` 链接、没有本机盘符路径，报告文件存在，HTML 结构完整。
+5. 在 `github-site` 中执行 `git diff --check`，只提交本次素材同步相关文件；确认没有混入其他未授权改动后，提交并推送到 `feng082/save-to-learn` 的 `main` 分支。
+6. 汇报本地收录、HTML 更新、GitHub 提交哈希、推送结果和线上页面地址。GitHub 或网络失败时，本地收录仍保留，但必须明确标记“线上同步失败”，不能声称已发布。
+
+固定路径与发布约定：
+
+- 本地展示页：素材库根目录 `index.html`
+- GitHub 工作副本：`E:\资料库\05_图片视频\自媒体\学习素材库\github-site`
+- GitHub 仓库：`https://github.com/feng082/save-to-learn`
+- GitHub Pages：`https://feng082.github.io/save-to-learn/`
+- 只有用户明确说“只保存本地”“不要上传”或“不要提交 GitHub”时，才跳过第 3–6 步。
+
+## 网页读取失败时的 Firecrawl 二次尝试
+
+对网页、文章、帖子、GitHub 页面和视频页面，必须采用以下顺序：
+
+1. 先用当前环境正常打开并读取原始页面。
+2. 如果页面只有空壳 HTML、依赖 JavaScript、正文为空、内容加载不完整或当前读取方式失败，再尝试 Firecrawl。
+3. 先检查 `FIRECRAWL_API_KEY` 环境变量；有 Key 时优先使用 Firecrawl Hosted API，默认地址为 `https://api.firecrawl.dev`。
+4. 没有可用 API Key 时，检查本地源码目录 `C:\Users\10167\.codex\tools\firecrawl` 和本地服务 `http://localhost:3002`。
+5. 如果官方源码目录不存在，先执行浅克隆：
+
+```powershell
+New-Item -ItemType Directory -Force -Path 'C:\Users\10167\.codex\tools' | Out-Null
+git clone --depth 1 https://github.com/firecrawl/firecrawl.git 'C:\Users\10167\.codex\tools\firecrawl'
+```
+
+6. 源码下载成功不等于 Firecrawl 服务已经运行。没有 API Key 且 `localhost:3002` 不可用时，不要假装抓取成功；说明“Firecrawl 源码已下载，但服务尚未启动”，然后按无法访问处理。
+7. 不要擅自执行 Docker Compose、安装 Rust/Redis/PostgreSQL/pnpm 或启动长期后台服务，除非用户明确要求部署 Firecrawl。
+8. Firecrawl 成功时，优先取得 Markdown，并根据已读取内容生成报告；不要把网页全文复制到 `sources/`。
+9. 对 JavaScript 动态页面，可使用等待渲染或浏览器交互；对登录墙、验证码、私密内容、删除页面或强反爬页面，失败后仍标记“链接无法访问”。
+10. 如果普通读取和 Firecrawl 都失败，只使用已经确认的标题、简介、作者或封面信息，绝不虚构正文、时间轴或分析结论。
+
+Firecrawl 是备用读取通道，不改变原始链接保存规则。无论哪种方式读取成功，`sources/` 仍只保存原始 `.url`，报告中记录实际使用的读取方式和分析状态。
 
 ## 原始入口规则
 

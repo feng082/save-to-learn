@@ -31,17 +31,21 @@
 - 对图片建立 STYLE 视觉风格档案
 - 检查重复素材
 - 根据已有 STYLE 检索和复用视觉风格
+- 普通网页读取失败时，使用 Firecrawl 进行第二次抓取
 
 ## 命令
 
 ```text
 /save-to-learn
+/save-to-learn save
 /save-to-learn inbox
 /save-to-learn search <关键词>
 /save-to-learn style <STYLE编号>
 /save-to-learn find-style <关键词>
 /save-to-learn index
 ```
+
+说 `save` 时，除了本地收录，还会同步更新 HTML 素材页并提交、推送到 GitHub；如果只想保存在本地，请明确说“只保存本地”。
 
 也支持自然语言，例如：
 
@@ -71,6 +75,18 @@
 - 不虚构无法确认的作者、日期、内容和分析结论
 - 相近图片优先复用已有 STYLE 编号
 - 默认先给出分析方案和提示词，不自动调用生图工具
+
+## 网页读取备用通道
+
+处理网页素材时，先进行普通读取；如果页面依赖 JavaScript、正文为空或读取失败，再尝试 Firecrawl。
+
+技能会按以下顺序检查：
+
+1. `FIRECRAWL_API_KEY` 对应的 Firecrawl Hosted API
+2. 本地 `http://localhost:3002` Firecrawl 服务
+3. 官方源码目录 `C:\Users\10167\.codex\tools\firecrawl`
+
+如果源码目录不存在，会先浅克隆官方仓库。源码下载不代表服务已经启动；没有可用 API 或本地服务时，仍会明确标记“链接无法访问”。技能不会擅自安装 Docker、Redis、PostgreSQL、Rust 或启动长期后台服务。
 
 ## 安装
 
